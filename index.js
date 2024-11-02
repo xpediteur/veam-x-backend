@@ -31,6 +31,19 @@ export default async ({ req, res, log, error }) => {
         // Don't forget to return a response!
         return res.text("Pong");
     }
+
+    // The req object contains the request data
+    if (req.path === "/test") {
+        // Use res object to respond with text(), json(), or binary()
+        // Don't forget to return a response!
+
+        (async () => {
+            await deleteDocuments();
+        })();
+
+        return res.text("function executed");
+    }
+
     async function deleteDocuments() {
 
         let allDocuments = [];
