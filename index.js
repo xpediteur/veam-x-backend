@@ -1,4 +1,4 @@
-import { Client, Users } from 'node-appwrite';
+import { Client, Users, Databases, Query } from 'node-appwrite';
 
 // This Appwrite function will be executed every time your function is triggered
 export default async ({ req, res, log, error }) => {
@@ -9,6 +9,11 @@ export default async ({ req, res, log, error }) => {
         .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
         .setKey(req.headers['x-appwrite-key'] ?? '');
     const users = new Users(client);
+    const databases = new Databases(client);
+
+    var DBCollectionArray = new Map();
+
+    DBCollectionArray.set('vbx_error_log', '667698d85d98f40d9f97');
 
     try {
         const response = await users.list();
@@ -25,11 +30,52 @@ export default async ({ req, res, log, error }) => {
         // Don't forget to return a response!
         return res.text("Pong");
     }
+    async function deleteDocuments() {
 
-    return res.json({
-        motto: "Build like a team of hundreds_",
-        learn: "https://appwrite.io/docs",
-        connect: "https://appwrite.io/discord",
-        getInspired: "https://builtwith.appwrite.io",
-    });
+        let allDocuments = [];
+
+        let page = await databases.listDocuments(datebaseID, DBCollectionArray.get('vbx_error_log'),
+            [
+                Query.limit(25)
+
+                // Query.orderDesc("response_date ")
+            ]
+
+        );
+
+        while (page.documents.length > 0) {
+            // process the documents in the page
+            page.documents.forEach(document => {
+
+
+                allDocuments = allDocuments.concat(document);
+                // do something with the document
+            });
+
+            const lastId = page.documents[page.documents.length - 1].$id;
+
+            console.log('last id events array ----->>>: ', lastId);
+
+            page = await databases.listDocuments(datebaseID, DBCollectionArray.get('event_received'),
+                [
+                    Query.limit(25),
+                    Query.cursorAfter(lastId)
+                ]
+            );
+        }
+
+        console.log('all events array ----->>>: ', allDocuments)
+
+        res.json({
+
+            result: allDocuments.length
+        });
+
+    }
+
+    (async () => {
+        await deleteDocuments();
+    })();
+
+
 };
