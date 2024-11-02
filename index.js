@@ -1,4 +1,5 @@
 import { Client, Users, Databases, Query } from 'node-appwrite';
+const moment = require('moment-timezone');
 
 // This Appwrite function will be executed every time your function is triggered
 export default async ({ req, res, log, error }) => {
@@ -53,6 +54,9 @@ export default async ({ req, res, log, error }) => {
 
     async function deleteDocuments() {
 
+        // Calculate the date 60 days ago
+        const sixtyDaysAgo = moment().subtract(60, 'days');
+
         let allDocuments = [];
 
         let page = await databases.listDocuments(datebaseID, DBCollectionArray.get('vbx_error_log'),
@@ -85,13 +89,17 @@ export default async ({ req, res, log, error }) => {
             );
         }
 
-        console.log('all error array ----->>>: ', allDocuments)
+        // Filter documents that are older than 60 days
+        const countDocuments = allDocuments.filter(doc =>
+            moment(doc.log_date).isBefore(sixtyDaysAgo)
+        );
 
-        return res.json({
 
-            result: allDocuments.length
+        console.log(`Number of documents older than 60 days: ${countDocuments.length}`);
 
-        });
+        console.log('all error array len ----->>>: ', allDocuments.length)
+
+        return allDocuments.length + " / " + countDocuments.length
 
     }
 
