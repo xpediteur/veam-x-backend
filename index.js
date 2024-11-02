@@ -1,5 +1,5 @@
 import { Client, Users, Databases, Query } from 'node-appwrite';
-const moment = require('moment-timezone');
+import moment from 'moment-timezone';
 
 // This Appwrite function will be executed every time your function is triggered
 export default async ({ req, res, log, error }) => {
