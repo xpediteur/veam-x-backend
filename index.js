@@ -39,11 +39,10 @@ export default async ({ req, res, log, error }) => {
         // Use res object to respond with text(), json(), or binary()
         // Don't forget to return a response!
 
-        (async () => {
-            await deleteDocuments();
-        })();
 
-        return res.text("function executed");
+        const delresult = await deleteDocuments();
+
+        return res.text(delresult);
     }
 
     async function deleteDocuments() {
@@ -82,9 +81,10 @@ export default async ({ req, res, log, error }) => {
 
         console.log('all error array ----->>>: ', allDocuments)
 
-        res.json({
+        return res.json({
 
             result: allDocuments.length
+
         });
 
     }
