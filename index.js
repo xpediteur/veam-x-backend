@@ -74,6 +74,11 @@ export default async ({ req, res, log, error }) => {
 
     }
 
+    return res.json({
+        result: "no function executed ...",
+
+    });
+
     /*     (async () => {
             await deleteDocuments();
         })(); */
