@@ -13,7 +13,7 @@ export default async ({ req, res, log, error }) => {
 
     const databases = new Databases(client, '63446ca755a041305f7f');
 
-    const datebaseID = process.env.APPWRITE_DATABSE_ID;
+    const datebaseID = process.env.APPWRITE_DATABASE_ID;
 
     const deleteDays = process.env.APPWRITE_DELETE_DAYS || 60;
 
@@ -54,7 +54,7 @@ export default async ({ req, res, log, error }) => {
         } catch (error) {
             // Handle errors
             console.error("Error deleting documents:", error);
-            return res.status(500).send("Error deleting documents");
+            return res.send("Error deleting documents");
         }
 
     }
