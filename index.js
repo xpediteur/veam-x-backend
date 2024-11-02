@@ -30,9 +30,14 @@ export default async ({ req, res, log, error }) => {
 
     // The req object contains the request data
     if (req.path === "/ping") {
-        // Use res object to respond with text(), json(), or binary()
-        // Don't forget to return a response!
-        return res.text("Pong");
+        const now = new Date();
+
+        res.json({
+
+            date: now,
+            status: 'alive'
+
+        });
     }
 
     // The req object contains the request data
@@ -94,12 +99,17 @@ export default async ({ req, res, log, error }) => {
             moment(doc.log_date).isBefore(sixtyDaysAgo)
         );
 
+        // Delete the filtered documents
+        const deletePromises = allDocuments.map(doc =>
+            databases.deleteDocument(datebaseID, DBCollectionArray.get('vbx_error_log'), doc.$id)
+        );
 
-        console.log(`Number of documents older than 60 days: ${countDocuments.length}`);
 
-        console.log('all error array len ----->>>: ', allDocuments.length)
+        log(`Number of documents older than 60 days: ${countDocuments.length}`);
 
-        return allDocuments.length + " / " + countDocuments.length
+        log('all error array len ----->>>: ', allDocuments.length)
+
+        return allDocuments.length + " / " + countDocuments.length + " / " + deletePromises
 
     }
 
