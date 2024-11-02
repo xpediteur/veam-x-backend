@@ -36,13 +36,19 @@ export default async ({ req, res, log, error }) => {
 
     // The req object contains the request data
     if (req.path === "/test") {
-        // Use res object to respond with text(), json(), or binary()
-        // Don't forget to return a response!
 
+        try {
+            // Await deleteDocuments within an async function
+            const delresult = await deleteDocuments();
 
-        const delresult = await deleteDocuments();
+            // Send the result as a response
+            return res.send(delresult);
+        } catch (error) {
+            // Handle errors
+            console.error("Error deleting documents:", error);
+            return res.status(500).send("Error deleting documents");
+        }
 
-        return res.text(delresult);
     }
 
     async function deleteDocuments() {
