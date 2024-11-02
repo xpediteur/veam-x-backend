@@ -9,7 +9,8 @@ export default async ({ req, res, log, error }) => {
         .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
         .setKey(req.headers['x-appwrite-key'] ?? '');
     const users = new Users(client);
-    const databases = new Databases(client);
+
+    const databases = new Databases(client, '63446ca755a041305f7f');
 
     var DBCollectionArray = new Map();
 
@@ -56,7 +57,7 @@ export default async ({ req, res, log, error }) => {
 
             console.log('last id events array ----->>>: ', lastId);
 
-            page = await databases.listDocuments(datebaseID, DBCollectionArray.get('event_received'),
+            page = await databases.listDocuments(datebaseID, DBCollectionArray.get('vbx_error_log'),
                 [
                     Query.limit(25),
                     Query.cursorAfter(lastId)
@@ -64,7 +65,7 @@ export default async ({ req, res, log, error }) => {
             );
         }
 
-        console.log('all events array ----->>>: ', allDocuments)
+        console.log('all error array ----->>>: ', allDocuments)
 
         res.json({
 
