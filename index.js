@@ -95,23 +95,33 @@ export default async ({ req, res, log, error }) => {
         }
 
         // Filter documents that are older than 60 days
-        const countDocuments = allDocuments.filter(doc =>
+        const toDeleteDocuments = allDocuments.filter(doc =>
             moment(doc.log_date).isBefore(sixtyDaysAgo)
         );
 
         // Delete the filtered documents
-        const deletePromises = allDocuments.map(doc =>
+        const deletePromises = toDeleteDocuments.map(doc =>
             databases.deleteDocument(datebaseID, DBCollectionArray.get('vbx_error_log'), doc.$id)
         );
 
+        // Execute all deletions concurrently and check results
+        Promise.all(deletePromises)
+            .then(results => {
+                const successfulDeletions = results.filter(result => result).length;
 
-        log(`Number of documents older than 60 days: ${countDocuments.length}`);
+                log(`${successfulDeletions} documents were successfully deleted.`);
+
+            })
+            .catch(error => {
+                error('Error during document deletion:', error.message);
+            });
+
+
+        log(`Number of documents older than 60 days: ${toDeleteDocuments.length}`);
 
         log('all error array len ----->>>: ', allDocuments.length);
 
-        log('delete promises ----->>>: ', deletePromises);
-
-        return allDocuments.length + " / " + countDocuments.length + " / " + deletePromises
+        return allDocuments.length + " / " + toDeleteDocuments.length;
 
     }
 
