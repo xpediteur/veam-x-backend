@@ -13,7 +13,9 @@ export default async ({ req, res, log, error }) => {
 
     const databases = new Databases(client, '63446ca755a041305f7f');
 
-    const datebaseID = "63446ca755a041305f7f";
+    const datebaseID = process.env.APPWRITE_DATABSE_ID;
+
+    const deleteDays = process.env.APPWRITE_DELETE_DAYS || 60;
 
     var DBCollectionArray = new Map();
 
@@ -60,7 +62,7 @@ export default async ({ req, res, log, error }) => {
     async function deleteDocuments() {
 
         // Calculate the date 60 days ago
-        const sixtyDaysAgo = moment().subtract(60, 'days');
+        const sixtyDaysAgo = moment().subtract(deleteDays, 'days');
 
         let allDocuments = [];
 
@@ -84,8 +86,8 @@ export default async ({ req, res, log, error }) => {
 
             const lastId = page.documents[page.documents.length - 1].$id;
 
-            console.log('last id events array ----->>>: ', lastId);
-
+            /*  log('last id events array ----->>>: ', lastId);
+  */
             page = await databases.listDocuments(datebaseID, DBCollectionArray.get('vbx_error_log'),
                 [
                     Query.limit(25),
@@ -94,7 +96,7 @@ export default async ({ req, res, log, error }) => {
             );
         }
 
-        // Filter documents that are older than 60 days
+        // Filter documents that are older than deleteDays days
         const toDeleteDocuments = allDocuments.filter(doc =>
             moment(doc.log_date).isBefore(sixtyDaysAgo)
         );
@@ -117,7 +119,7 @@ export default async ({ req, res, log, error }) => {
             });
 
 
-        log(`Number of documents older than 60 days: ${toDeleteDocuments.length}`);
+        log(`Number of documents older than xx days: ${toDeleteDocuments.length}`);
 
         log('all error array len ----->>>: ', allDocuments.length);
 
