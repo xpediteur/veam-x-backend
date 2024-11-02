@@ -9,11 +9,12 @@ export default async ({ req, res, log, error }) => {
         .setEndpoint(process.env.APPWRITE_FUNCTION_API_ENDPOINT)
         .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
         .setKey(req.headers['x-appwrite-key'] ?? '');
+
     const users = new Users(client);
 
-    const databases = new Databases(client, '63446ca755a041305f7f');
-
     const datebaseID = process.env.APPWRITE_DATABASE_ID;
+
+    const databases = new Databases(client, datebaseID);
 
     const deleteDays = process.env.APPWRITE_DELETE_DAYS || 60;
 
@@ -22,12 +23,15 @@ export default async ({ req, res, log, error }) => {
     DBCollectionArray.set('vbx_error_log', '667698d85d98f40d9f97');
 
     try {
-        const response = await users.list();
-        // Log messages and errors to the Appwrite Console
-        // These logs won't be seen by your end users
-        log(`Total users: ${response.total}`);
+        // Await deleteDocuments within an async function
+        const delresult = await deleteDocuments();
+
+        // Send the result as a response
+        return res.send(delresult);
     } catch (err) {
-        error("Could not list users: " + err.message);
+        // Handle errors
+        console.error("Error deleting documents:", error);
+
     }
 
     // The req object contains the request data
@@ -61,7 +65,7 @@ export default async ({ req, res, log, error }) => {
 
     async function deleteDocuments() {
 
-        // Calculate the date 60 days ago
+        // Calculate the date xx days ago
         const sixtyDaysAgo = moment().subtract(deleteDays, 'days');
 
         let allDocuments = [];
@@ -79,9 +83,8 @@ export default async ({ req, res, log, error }) => {
             // process the documents in the page
             page.documents.forEach(document => {
 
-
                 allDocuments = allDocuments.concat(document);
-                // do something with the document
+
             });
 
             const lastId = page.documents[page.documents.length - 1].$id;
@@ -119,9 +122,9 @@ export default async ({ req, res, log, error }) => {
             });
 
 
+        log('Number of all documents : ', allDocuments.length);
         log(`Number of documents older than xx days: ${toDeleteDocuments.length}`);
 
-        log('all error array len ----->>>: ', allDocuments.length);
 
         return allDocuments.length + " / " + toDeleteDocuments.length;
 
@@ -131,10 +134,5 @@ export default async ({ req, res, log, error }) => {
         result: "no function executed ...",
 
     });
-
-    /*     (async () => {
-            await deleteDocuments();
-        })(); */
-
 
 };
