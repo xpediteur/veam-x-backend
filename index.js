@@ -74,9 +74,9 @@ export default async ({ req, res, log, error }) => {
 
     }
 
-    (async () => {
-        await deleteDocuments();
-    })();
+    /*     (async () => {
+            await deleteDocuments();
+        })(); */
 
 
 };
