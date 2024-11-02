@@ -12,6 +12,8 @@ export default async ({ req, res, log, error }) => {
 
     const databases = new Databases(client, '63446ca755a041305f7f');
 
+    const datebaseID = "63446ca755a041305f7f";
+
     var DBCollectionArray = new Map();
 
     DBCollectionArray.set('vbx_error_log', '667698d85d98f40d9f97');
