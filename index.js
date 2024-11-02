@@ -107,7 +107,9 @@ export default async ({ req, res, log, error }) => {
 
         log(`Number of documents older than 60 days: ${countDocuments.length}`);
 
-        log('all error array len ----->>>: ', allDocuments.length)
+        log('all error array len ----->>>: ', allDocuments.length);
+
+        log('delete promises ----->>>: ', deletePromises);
 
         return allDocuments.length + " / " + countDocuments.length + " / " + deletePromises
 
