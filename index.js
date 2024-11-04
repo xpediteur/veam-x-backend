@@ -123,7 +123,7 @@ export default async ({ req, res, log, error }) => {
 
 
         log('Number of all documents : ', allDocuments.length);
-        log(`Number of documents older than xx days: ${toDeleteDocuments.length}`);
+        log(`Number of documents deleted older than ${deleteDays} days: ${toDeleteDocuments.length}`);
 
 
         return allDocuments.length + " / " + toDeleteDocuments.length;
