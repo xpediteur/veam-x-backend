@@ -32,6 +32,8 @@ export default async ({ req, res, log, error }) => {
             status: 'alive'
 
         });
+
+        log(`in ping: ${now}`);
     }
 
     if (req.path === "/token") {
@@ -39,12 +41,15 @@ export default async ({ req, res, log, error }) => {
         try {
             const tokenData = await getVerkadaToken();
             if (!tokenData) {
+                log(`error tokenData: ${tokenData}`);
                 return res.status(500).json({ error: 'Token konnte nicht abgerufen werden' });
             }
             res.json(tokenData);
         } catch (err) {
             console.error("Unhandled error:", err);
+            log(`error: ${err}`);
             return res.status(500).json({ error: err.message });
+
         }
 
     }
