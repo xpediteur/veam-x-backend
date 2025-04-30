@@ -44,7 +44,7 @@ export default async ({ req, res, log, error }) => {
             res.json(tokenData);
         } catch (err) {
             console.error("Unhandled error:", err);
-            res.status(500).json({ error: err.message });
+            return res.status(500).json({ error: err.message });
         }
 
     }
