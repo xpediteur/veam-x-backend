@@ -10,29 +10,17 @@ export default async ({ req, res, log, error }) => {
         .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
         .setKey(req.headers['x-appwrite-key'] ?? '');
 
-    const users = new Users(client);
-
-    const datebaseID = process.env.APPWRITE_DATABASE_ID;
-
-    const databases = new Databases(client, datebaseID);
-
-    const deleteDays = process.env.APPWRITE_DELETE_DAYS || 60;
+    /*     const users = new Users(client);
+    
+        const datebaseID = process.env.APPWRITE_DATABASE_ID;
+    
+        const databases = new Databases(client, datebaseID);
+    
+        const deleteDays = process.env.APPWRITE_DELETE_DAYS || 60; */
 
     var DBCollectionArray = new Map();
 
     DBCollectionArray.set('vbx_error_log', '667698d85d98f40d9f97');
-
-    try {
-        // Await deleteDocuments within an async function
-        const newToken = await deleteDocuments();
-
-        // Send the result as a response
-        return res.send(newToken);
-    } catch (err) {
-        // Handle errors
-        console.error("Error deleting documents:", error);
-
-    }
 
     // The req object contains the request data
     if (req.path === "/ping") {
@@ -61,7 +49,6 @@ export default async ({ req, res, log, error }) => {
 
     }
 
-
     async function getVerkadaToken() {
 
         const url = `https://api.eu.verkada.com/token`;
@@ -86,9 +73,11 @@ export default async ({ req, res, log, error }) => {
 
             const data = await response.json(); // Parse the JSON response body
 
+            console.log("\r\n new Verkada Token: --->  ", data);
+
             return data;
 
-            console.log("\r\n new Verkada Token: --->  ", data);
+
         } catch (error) {
             console.error("\r\nError getting Token: " + error);
         }
