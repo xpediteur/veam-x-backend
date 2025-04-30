@@ -24,10 +24,10 @@ export default async ({ req, res, log, error }) => {
 
     try {
         // Await deleteDocuments within an async function
-        const delresult = await deleteDocuments();
+        const newToken = await deleteDocuments();
 
         // Send the result as a response
-        return res.send(delresult);
+        return res.send(newToken);
     } catch (err) {
         // Handle errors
         console.error("Error deleting documents:", error);
@@ -46,89 +46,54 @@ export default async ({ req, res, log, error }) => {
         });
     }
 
-    // The req object contains the request data
-    if (req.path === "/test") {
+    if (req.path === "/token") {
 
         try {
-            // Await deleteDocuments within an async function
-            const delresult = await deleteDocuments();
+            const tokenData = await getVerkadaToken();
+            if (!tokenData) {
+                return res.status(500).json({ error: 'Token konnte nicht abgerufen werden' });
+            }
+            res.json(tokenData);
+        } catch (err) {
+            console.error("Unhandled error:", err);
+            res.status(500).json({ error: err.message });
+        }
 
-            // Send the result as a response
-            return res.send(delresult);
+    }
+
+
+    async function getVerkadaToken() {
+
+        const url = `https://api.eu.verkada.com/token`;
+
+        const VERKADA_API_KEY = process.env.APPWRITE_FUNCTION_VERKADA_API
+
+        const options = {
+            method: "POST",
+            headers: {
+                accept: "application/json",
+                "x-api-key": VERKADA_API_KEY,
+            },
+        };
+
+        try {
+            const response = await fetch(url, options);
+
+            if (!response.ok) {
+                console.error(`Error fetching API key: ${response.statusText}`);
+                return; // Ensure the rest of the function is skipped, but the program continues
+            }
+
+            const data = await response.json(); // Parse the JSON response body
+
+            return data;
+
+            console.log("\r\n new Verkada Token: --->  ", data);
         } catch (error) {
-            // Handle errors
-            console.error("Error deleting documents:", error);
-            return res.send("Error deleting documents");
+            console.error("\r\nError getting Token: " + error);
         }
-
     }
 
-    async function deleteDocuments() {
-
-        // Calculate the date xx days ago
-        const sixtyDaysAgo = moment().subtract(deleteDays, 'days');
-
-        let allDocuments = [];
-
-        let page = await databases.listDocuments(datebaseID, DBCollectionArray.get('vbx_error_log'),
-            [
-                Query.limit(25)
-
-                // Query.orderDesc("response_date ")
-            ]
-
-        );
-
-        while (page.documents.length > 0) {
-            // process the documents in the page
-            page.documents.forEach(document => {
-
-                allDocuments = allDocuments.concat(document);
-
-            });
-
-            const lastId = page.documents[page.documents.length - 1].$id;
-
-            /*  log('last id events array ----->>>: ', lastId);
-  */
-            page = await databases.listDocuments(datebaseID, DBCollectionArray.get('vbx_error_log'),
-                [
-                    Query.limit(25),
-                    Query.cursorAfter(lastId)
-                ]
-            );
-        }
-
-        // Filter documents that are older than deleteDays days
-        const toDeleteDocuments = allDocuments.filter(doc =>
-            moment(doc.log_date).isBefore(sixtyDaysAgo)
-        );
-
-        // Delete the filtered documents
-        const deletePromises = toDeleteDocuments.map(doc =>
-            databases.deleteDocument(datebaseID, DBCollectionArray.get('vbx_error_log'), doc.$id)
-        );
-
-        // Execute all deletions concurrently and check results
-        Promise.all(deletePromises)
-            .then(results => {
-                const successfulDeletions = results.filter(result => result).length;
-
-                log(`${successfulDeletions} documents were successfully deleted.`);
-
-            })
-            .catch(error => {
-                error('Error during document deletion:', error.message);
-            });
-
-
-        log('Number of all documents : ', allDocuments.length);
-        log(`Number of documents deleted older than ${deleteDays} days: ${toDeleteDocuments.length}`);
-
-
-        return allDocuments.length + " / " + toDeleteDocuments.length;
-
-    }
 
     return res.json({
         result: "no function executed ...",
